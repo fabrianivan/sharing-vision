@@ -1,0 +1,318 @@
+openapi: 3.0.3
+info:
+  title: Sharing Vision - Article API
+  description: API untuk manajemen artikel (CRUD) dengan validasi input dan pagination
+  version: 1.0.0
+  contact:
+    name: Sharing Vision
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+paths:
+  /article/:
+    post:
+      summary: Buat artikel baru
+      operationId: createArticle
+      tags:
+        - Article
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleInput'
+            example:
+              title: "Judul artikel yang cukup panjang ya"
+              content: "Isi konten artikel yang panjangnya minimal dua ratus karakter. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris."
+              category: "Technology"
+              status: "publish"
+      responses:
+        '201':
+          description: Artikel berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {}
+        '400':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+              example:
+                errors:
+                  - field: "title"
+                    message: "Title minimal 20 karakter"
+
+  /article/{limit}/{offset}:
+    get:
+      summary: List artikel dengan pagination
+      operationId: getArticles
+      tags:
+        - Article
+      parameters:
+        - name: limit
+          in: path
+          required: true
+          description: Jumlah data per halaman
+          schema:
+            type: integer
+            minimum: 1
+          example: 10
+        - name: offset
+          in: path
+          required: true
+          description: Mulai dari data ke-berapa
+          schema:
+            type: integer
+            minimum: 0
+          example: 0
+      responses:
+        '200':
+          description: List artikel
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Article'
+        '400':
+          description: Parameter tidak valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /article/{id}:
+    get:
+      summary: Ambil detail artikel berdasarkan ID
+      operationId: getArticleById
+      tags:
+        - Article
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID artikel
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Detail artikel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        '404':
+          description: Artikel tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "artikel tidak ditemukan"
+
+    put:
+      summary: Update artikel (full update)
+      operationId: updateArticlePut
+      tags:
+        - Article
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID artikel yang mau diupdate
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleInput'
+            example:
+              title: "Judul yang sudah diupdate panjang"
+              content: "Konten yang sudah diupdate dan harus tetap panjang minimal dua ratus karakter. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam."
+              category: "Business"
+              status: "draft"
+      responses:
+        '200':
+          description: Artikel berhasil diupdate
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {}
+        '400':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Artikel tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      summary: Update artikel (partial update)
+      operationId: updateArticlePatch
+      tags:
+        - Article
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleInput'
+      responses:
+        '200':
+          description: Artikel berhasil diupdate
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {}
+        '400':
+          description: Validasi gagal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '404':
+          description: Artikel tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Hapus artikel
+      operationId: deleteArticle
+      tags:
+        - Article
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID artikel yang mau dihapus
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: Artikel berhasil dihapus
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {}
+        '404':
+          description: Artikel tidak ditemukan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ArticleInput:
+      type: object
+      required:
+        - title
+        - content
+        - category
+        - status
+      properties:
+        title:
+          type: string
+          minLength: 20
+          maxLength: 200
+          description: Judul artikel, minimal 20 karakter
+          example: "Judul artikel yang cukup panjang"
+        content:
+          type: string
+          minLength: 200
+          description: Isi artikel, minimal 200 karakter
+          example: "Konten artikel yang panjang..."
+        category:
+          type: string
+          minLength: 3
+          maxLength: 100
+          description: Kategori artikel, minimal 3 karakter
+          example: "Technology"
+        status:
+          type: string
+          enum:
+            - publish
+            - draft
+            - thrash
+          description: "Status artikel (disimpan di DB sebagai Publish/Draft/Thrash)"
+          example: "publish"
+
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Contoh Judul Artikel Pertama"
+        content:
+          type: string
+          example: "Isi konten artikel yang lengkap..."
+        category:
+          type: string
+          example: "Technology"
+        status:
+          type: string
+          enum:
+            - Publish
+            - Draft
+            - Thrash
+          example: "Publish"
+        created_date:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+        updated_date:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "artikel tidak ditemukan"
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "title"
+              message:
+                type: string
+                example: "Title minimal 20 karakter"
