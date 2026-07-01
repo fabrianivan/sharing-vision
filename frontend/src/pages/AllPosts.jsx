@@ -6,6 +6,7 @@ function AllPosts() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Publish');
+  const [searchQuery, setSearchQuery] = useState('');
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
 
@@ -32,15 +33,18 @@ function AllPosts() {
     fetchPosts();
   }, [fetchPosts]);
 
-  const filteredPosts = posts.filter(
-    (post) => post.status === activeTab
-  );
-
   const tabCounts = {
     Publish: posts.filter((p) => p.status === 'Publish').length,
     Draft: posts.filter((p) => p.status === 'Draft').length,
     Thrash: posts.filter((p) => p.status === 'Thrash').length,
   };
+
+  const filteredPosts = posts.filter(
+    (post) =>
+      post.status === activeTab &&
+      (post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       post.category.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -81,8 +85,52 @@ function AllPosts() {
 
       {/* Page Header */}
       <div className="page-header">
-        <h2>All Posts</h2>
-        <p>Manage your articles across all statuses</p>
+        <h2>Dashboard</h2>
+        <p>Overview of your articles and publication metrics</p>
+      </div>
+
+      {/* Stats Counter Grid */}
+      <div className="stats-grid">
+        <div className="stat-card total">
+          <div className="stat-icon-wrapper" style={{ color: 'var(--accent-indigo)' }}>📊</div>
+          <div className="stat-info">
+            <span className="stat-label">Total Articles</span>
+            <span className="stat-value">{posts.length}</span>
+          </div>
+        </div>
+        <div className="stat-card published">
+          <div className="stat-icon-wrapper" style={{ color: 'var(--accent-emerald)' }}>🚀</div>
+          <div className="stat-info">
+            <span className="stat-label">Published</span>
+            <span className="stat-value">{tabCounts.Publish}</span>
+          </div>
+        </div>
+        <div className="stat-card drafts">
+          <div className="stat-icon-wrapper" style={{ color: 'var(--accent-amber)' }}>📝</div>
+          <div className="stat-info">
+            <span className="stat-label">Drafts</span>
+            <span className="stat-value">{tabCounts.Draft}</span>
+          </div>
+        </div>
+        <div className="stat-card trashed">
+          <div className="stat-icon-wrapper" style={{ color: 'var(--accent-rose)' }}>🗑️</div>
+          <div className="stat-info">
+            <span className="stat-label">Trashed</span>
+            <span className="stat-value">{tabCounts.Thrash}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Controls: Search and Tabs */}
+      <div className="search-container">
+        <span className="search-icon">🔍</span>
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search articles by title or category..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
       {/* Tabs */}
@@ -106,10 +154,12 @@ function AllPosts() {
         </div>
       ) : filteredPosts.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-icon">📭</div>
-          <h3>No articles found</h3>
+          <div className="empty-icon">{searchQuery ? '🔍' : '📭'}</div>
+          <h3>{searchQuery ? 'No matching articles' : 'No articles found'}</h3>
           <p>
-            {activeTab === 'Publish'
+            {searchQuery
+              ? `No articles match "${searchQuery}" in this tab.`
+              : activeTab === 'Publish'
               ? 'No published articles yet. Create your first one!'
               : activeTab === 'Draft'
               ? 'No drafts saved.'

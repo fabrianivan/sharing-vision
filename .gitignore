@@ -1,0 +1,24 @@
+# Common ignores
+.DS_Store
+.env
+.env.local
+.env.production
+*.log
+
+# Go ignores
+backend/server
+backend/backend
+*.exe
+*.test
+*.prof
+
+# Node/React ignores
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker ignores
+.dockerignore
