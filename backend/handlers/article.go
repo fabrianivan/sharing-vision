@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ArticleInput struct {
+type Article struct {
 	Title    string `json:"title"`
 	Content  string `json:"content"`
 	Category string `json:"category"`
@@ -19,7 +19,7 @@ type ArticleInput struct {
 }
 
 func CreateArticle(c *gin.Context) {
-	var body ArticleInput
+	var body Article
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "request body tidak valid"})
 		return
@@ -96,7 +96,7 @@ func UpdateArticle(c *gin.Context) {
 		return
 	}
 
-	var body ArticleInput
+	var body Article
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "request body tidak valid"})
 		return

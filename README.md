@@ -128,7 +128,3 @@ curl -X POST http://localhost:8080/article/ \
 | `Created_date` | TIMESTAMP | Waktu dibuat |
 | `Updated_date` | TIMESTAMP | Waktu terakhir diupdate |
 | `Status` | VARCHAR(100) | `Publish` / `Draft` / `Thrash` |
-
-## Postman Collection
-
-Import file `postman/sharing_vision.postman_collection.json` ke Postman untuk testing semua endpoint.
